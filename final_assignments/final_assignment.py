@@ -58,24 +58,6 @@ def is_input_valid(s:str) -> bool:
 val_cmd = root.register(is_input_valid)
 
 
-
-def recolor_duplicate() -> None:
-	"""ルールに違反したマスの文字を赤くする。
-	"""
-	state_error = "user1"
-	state_not_error = "!user1"
-
-	style = ttk.Style()
-	style.theme_use("default")
-	style.map("TEntry",foreground=[(state_error,"red")])
-
-	duplicates = quiz_grid.check_duplicate()
-
-	for row in cells:
-		for cell in row:
-			cell.state([state_error if cell.index in duplicates else state_not_error])
-
-
 class CellEntry(ttk.Entry):
 	""" ttk.Entry を継承した、数独のマスとして数字を入力するためのクラス。
 
@@ -95,7 +77,7 @@ class CellEntry(ttk.Entry):
 		self._SV = sv
 
 
-		super().__init__(width=2,font=('Helvetica', 14), justify="center", 
+		super().__init__(width=2, font=('Helvetica', 14), justify="center", 
 				   validate="key", validatecommand=(val_cmd,'%P'), textvariable=sv,
 				   *args, **kwargs,)
 
@@ -108,6 +90,13 @@ class CellEntry(ttk.Entry):
 			
 		self.insert(0,text)
 		self.state(["!readonly" if is_editable else "readonly"])
+
+		self.state_error = "user1"
+		self.state_not_error = "!user1"
+
+		self.style = ttk.Style()
+		self.style.theme_use("default")
+		self.style.map("TEntry",foreground=[(self.state_error,"red")])
 
 	@property
 	def index(self):
@@ -123,7 +112,12 @@ class CellEntry(ttk.Entry):
 		反映させたのち、盤面全体についてルール違反のマスが存在するかの確認を行う。"""
 		s = self.sv.get()
 		quiz_grid.edit_number(self.index, 0 if s == "" else int(s))
-		recolor_duplicate()
+
+		duplicates = quiz_grid.check_duplicate()
+
+		for row in cells:
+			for cell in row:
+				cell.state([self.state_error if cell.index in duplicates else self.state_not_error])
 
 tk.Frame(root, bg = "#ffffff").grid()
 
