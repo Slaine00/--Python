@@ -1,0 +1,17 @@
+数独の盤面をリストとして扱うためのクラスSudokuを作成。
+
+docstring について調べて、初めてきちんと書いてみた。
+https://www.sphinx-doc.org/ja/master/usage/extensions/example_google.html
+https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
+
+
+GUIを作成。
+ttk.Entry について
+
+ユーザーが入力した文字が数独のマスにふさわしいかを調べる必要がある。
+ttk.Entry の入力検証について
+https://python.keicode.com/advanced/tkinter-widget-entry-validate.php
+
+subgridに罫線を付けたい。
+はじめに数字を入力したときに盤面全体がカクつくのを修正したい（tk.Entry と ttk.Entry が重なっている？）
+コマンドライン引数で問題用の盤面を指定できるようにしたい。
