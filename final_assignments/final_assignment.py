@@ -76,10 +76,17 @@ class CellEntry(ttk.Entry):
 		self._INDEX = index
 		self._SV = sv
 
+		is_odd_subgrid = (index[0]//3 + index[1]//3) % 2 == 1
 
-		super().__init__(width=2, font=('Helvetica', 14), justify="center", 
+		super().__init__(width=2, font=('Helvetica', 14), justify="center", style="Odd.TEntry" if is_odd_subgrid else "Even.TEntry",
 				   validate="key", validatecommand=(val_cmd,'%P'), textvariable=sv,
 				   *args, **kwargs,)
+
+# 以下、init内に書く必要はないはず？
+		self.style = ttk.Style()
+
+		self.state_error = "user1"
+		self.state_not_error = "!user1"
 
 		if n==0:
 			text = ""
@@ -89,14 +96,12 @@ class CellEntry(ttk.Entry):
 			is_editable = False
 			
 		self.insert(0,text)
-		self.state(["!readonly" if is_editable else "readonly"])
+		self.state(["!disabled" if is_editable else "disabled"])
 
-		self.state_error = "user1"
-		self.state_not_error = "!user1"
-
-		self.style = ttk.Style()
+# クソ
 		self.style.theme_use("default")
-		self.style.map("TEntry",foreground=[(self.state_error,"red")])
+		self.style.map("Odd.TEntry",foreground=[(self.state_error,"red"),(self.state_not_error,"black")], fieldbackground = [("!disabled","#f2e6ff"),("disabled","#f2ecf9")])
+		self.style.map("Even.TEntry",foreground=[(self.state_error,"red"),(self.state_not_error,"black")], fieldbackground = [("!disabled","#e6fee6"),("disabled","#ecf9ec")])
 
 	@property
 	def index(self):
