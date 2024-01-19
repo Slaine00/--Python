@@ -48,7 +48,8 @@ def is_input_valid(s:str) -> bool:
 
 		else:
 			n = int(s)
-			sudoku.check_number(n)
+			if not n in range(1,10):
+				return False
 
 	except (TypeError, ValueError):
 		return False

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """数独関係の処理を行うためのモジュール。
 """
+import itertools
 
 def check_index(n:any, name:str="") -> None:
 	"""与えられた引数がマスのインデックスとして有効か判定する。
@@ -21,25 +22,23 @@ def check_index(n:any, name:str="") -> None:
 		raise ValueError(f"The argument '{name}' must be an integer in the range of 0 to 8.")
 
 
-def check_number(n:any, name:str="") -> None:
-	"""与えられた引数がマスに書き込む数字として有効か判定する。
+class Cell:
+	def __init__(self,n:int) -> None:
+		self._value = n
 
-	Args:
-		n (any): 判定の対象。
-		name (str) = "": 判定の対象の変数名。
+	@property
+	def value(self):
+		return self._value
+	
+	@value.setter
+	def value(self, n):
+		if type(n) != int:
+			raise TypeError(f"The cell value must be of type int.")
 
-	Raises:
-		TypeError: n が int でない場合に発生。
-		ValueError: n が0以上9以下の範囲にない場合に発生。
+		if not n in range(10):
+				raise ValueError(f"The cell value must be an integer in the range of 0 to 9.")
 
-	"""
-	if type(n) != int:
-		raise TypeError(f"The argument '{name}' must be of type int.")
-
-	if not n in range(10):
-			raise ValueError(f"The argument '{name}' must be an integer in the range of 0 to 9.")
-
-
+		self._value = n
 
 class Grid:
 	"""数独の盤面を扱うためのクラス。
@@ -51,23 +50,23 @@ class Grid:
 		9x9の2次元リストを数独の盤面として生成する。数字が書かれていないマスは0として扱う。
 
 		Args:
-			grid (list[list[int]]): 0-9の整数のみを要素に持つ、サイズ9x9の、盤面に置かれた数字のリスト。
+			grid (list[list[int]]): cell を要素に持つサイズ9x9のリスト。
 
 		Raises:
-			TypeError: grid が2次元リストでない、または2次元配列の要素がintではない場合に発生。
-			ValueError: grid のサイズが9x9でない、または要素に0-9の範囲にない整数が含まれる場合に発生。
+			TypeError: grid が2次元リストでない場合に発生。
+			ValueError: grid のサイズが9x9でない場合に発生。
 
 		Note:
 			初期盤面が矛盾を含んでいるケース、および解決不可能なケースは想定していない。
 
 		"""
-		if type(grid) != list or not sum([type(l) == list for l in grid]) or not sum([sum([type(n) == int for n in l]) for l in grid]):
-			raise TypeError("The 'grid' argument must be a two-dimensional list containing only elements of type int.")
+		if type(grid) != list or not sum([type(l) == list for l in grid]):
+			raise TypeError("The 'grid' argument must be a two-dimensional list.")
 
 		if [len(l) for l in grid] != [9] * 9 or not sum([sum([n in range(9) for n in l]) for l in grid]):
-			raise ValueError("The 'grid' argument must be a 9x9 list containing only digits from 0 to 9 as elements.")
+			raise ValueError("The 'grid' argument must be a 9x9 list.")
 
-		self.grid = grid
+		self.grid = [[Cell(n) for n in row] for row in grid]
 
 
 	def get_grid(self) -> None:
@@ -76,7 +75,7 @@ class Grid:
 		Returns:
 			現在の盤面として取得された、0-9の整数を要素に持つ、サイズ9x9の2次元リスト。
 		"""
-		return self.grid
+		return [[cell.value for cell in row] for row in self.grid]
 
 	def get_row(self, i: int) -> list[int]:
 		"""i行目を取得する。
@@ -90,7 +89,7 @@ class Grid:
 		"""
 		check_index(i,"i")
 
-		return self.grid[i]
+		return [cell.value for cell in self.grid[i]]
 
 	def get_column(self,j: int) -> list[int]:
 		"""j列目を取得する。
@@ -104,7 +103,7 @@ class Grid:
 		"""
 		check_index(j,"j")
 
-		return [l[j] for l in self.grid]
+		return [row[j].value for row in self.grid]
 
 	def get_subgrid(self, index: tuple[int,int]) -> list[int]:
 		"""指定された座標のマスが含まれるブロックを取得する。
@@ -122,7 +121,7 @@ class Grid:
 
 		i_ = i//3 * 3
 		j_ = j//3 * 3
-		return sum([l[j_:j_+3] for l in self.grid[i_:i_+3]], [])
+		return [cell.value for l in self.grid[i_:i_+3] for cell in l[j_:j_+3]]
 
 	def get_cell(self, index: tuple[int,int]) -> int:
 		"""i列目のj列目を取得する。
@@ -138,7 +137,7 @@ class Grid:
 		check_index(i,"i")
 		check_index(j,"j")
 
-		return self.grid[i][j]
+		return self.grid[i][j].value
 
 	def check_duplicate(self) -> list[tuple[int,...]]:
 		"""盤面にルール違反があるかを調べる。
@@ -149,7 +148,15 @@ class Grid:
 				(0,0)と(1,1)と(0,2)が重複している場合: [(0,0),(0,2),(1,1)]
 
 		"""
-		return [(i,j) for i, l in enumerate(self.grid)for j,n in enumerate(l) if n != 0 and (self.get_row(i).count(n) > 1 or self.get_column(j).count(n) > 1 or self.get_subgrid((i,j)).count(n) > 1)]
+		duplicates = []
+
+		for i,j in itertools.product(range(9), range(9)):
+			value = self.grid[i][j].value
+
+			if value != 0 and (self.get_row(i).count(value) > 1 or self.get_column(j).count(value) > 1 or self.get_subgrid((i,j)).count(value) > 1):
+				duplicates.append((i,j))
+
+		return duplicates
 
 
 	def edit_number(self, index:tuple[int,int], n:int) -> None:
@@ -163,6 +170,23 @@ class Grid:
 		i,j = index
 		check_index(i,"i")
 		check_index(j,"j")
-		check_number(n,"n")
 
-		self.grid[i][j] = n
+		self.grid[i][j].value = n
+
+if __name__=="__main__":
+	input_list = [[0, 1, 8, 0, 0, 0, 3, 2, 0],
+                 [2, 5, 0, 0, 0, 0, 0, 4, 6],
+                 [0, 0, 4, 6, 5, 2, 1, 0, 0],
+                 [0, 0, 6, 0, 7, 0, 2, 0, 0],
+                 [0, 2, 0, 0, 4, 0, 0, 5, 0],
+                 [0, 0, 3, 1, 0, 8, 7, 0, 0],
+                 [0, 0, 2, 5, 3, 9, 4, 0, 0],
+                 [4, 9, 0, 0, 0, 0, 0, 8, 3],
+                 [0, 7, 0, 0, 0, 0, 0, 9, 0]]
+                          
+ 
+	quiz_grid = Grid(input_list)
+	quiz_grid.edit_number((0,8),1)
+	print(quiz_grid.get_grid())
+	print(quiz_grid.check_duplicate())
+
