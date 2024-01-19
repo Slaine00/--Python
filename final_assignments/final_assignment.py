@@ -57,6 +57,15 @@ def is_input_valid(s:str) -> bool:
 
 val_cmd = root.register(is_input_valid)
 
+STATE_ERROR = "user1"
+STATE_NOT_ERROR = "!user1"
+
+style = ttk.Style()
+style.theme_use("default")
+style.map("TEntry",foreground=[(STATE_ERROR,"red"),(STATE_NOT_ERROR,"black")],)
+style.map("Odd.TEntry", fieldbackground = [("!disabled","#f2e6ff"),("disabled","#f2ecf9")])
+style.map("Even.TEntry",fieldbackground = [("!disabled","#e6fee6"),("disabled","#ecf9ec")])
+
 
 class CellEntry(ttk.Entry):
 	""" ttk.Entry を継承した、数独のマスとして数字を入力するためのクラス。
@@ -82,12 +91,6 @@ class CellEntry(ttk.Entry):
 				   validate="key", validatecommand=(val_cmd,'%P'), textvariable=sv,
 				   *args, **kwargs,)
 
-# 以下、init内に書く必要はないはず？
-		self.style = ttk.Style()
-
-		self.state_error = "user1"
-		self.state_not_error = "!user1"
-
 		if n==0:
 			text = ""
 			is_editable = True
@@ -97,11 +100,6 @@ class CellEntry(ttk.Entry):
 			
 		self.insert(0,text)
 		self.state(["!disabled" if is_editable else "disabled"])
-
-# クソ
-		self.style.theme_use("default")
-		self.style.map("Odd.TEntry",foreground=[(self.state_error,"red"),(self.state_not_error,"black")], fieldbackground = [("!disabled","#f2e6ff"),("disabled","#f2ecf9")])
-		self.style.map("Even.TEntry",foreground=[(self.state_error,"red"),(self.state_not_error,"black")], fieldbackground = [("!disabled","#e6fee6"),("disabled","#ecf9ec")])
 
 	@property
 	def index(self):
@@ -122,7 +120,7 @@ class CellEntry(ttk.Entry):
 
 		for row in cells:
 			for cell in row:
-				cell.state([self.state_error if cell.index in duplicates else self.state_not_error])
+				cell.state([STATE_ERROR if cell.index in duplicates else STATE_NOT_ERROR])
 
 tk.Frame(root, bg = "#ffffff").grid()
 
