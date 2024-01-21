@@ -39,9 +39,9 @@ STATE_NOT_ERROR = "!user1"
 
 style = ttk.Style()
 style.theme_use("default")
-style.map("TEntry",foreground=[(STATE_ERROR,"red"),(STATE_NOT_ERROR,"black")],)
-style.map("Odd.TEntry", fieldbackground = [("!disabled","#f2e6ff"),("disabled","#f2ecf9")])
-style.map("Even.TEntry",fieldbackground = [("!disabled","#e6fee6"),("disabled","#ecf9ec")])
+style.map("Odd.TEntry", fieldbackground = [(STATE_ERROR,"red"),("!disabled","#f2e6ff"),("disabled","#f2ecf9")])
+style.map("Even.TEntry",fieldbackground = [(STATE_ERROR,"red"),("!disabled","#e6fee6"),("disabled","#ecf9ec")])
+style.map("TEntry",foreground=[(STATE_ERROR,"white"),(STATE_NOT_ERROR,"black")])
 
 
 class CellEntry(ttk.Entry,sudoku.Cell):
