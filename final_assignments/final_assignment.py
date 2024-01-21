@@ -72,16 +72,9 @@ class CellEntry(ttk.Entry,sudoku.Cell):
 		ttk.Entry.__init__(self,width=2, font=('Helvetica', 14), justify="center", style="Odd.TEntry" if is_odd_subgrid else "Even.TEntry",
 				   validate="key", validatecommand=(val_cmd,'%P'), textvariable=sv,
 				   *args, **kwargs,)
-
-		if n==0:
-			text = ""
-			is_editable = True
-		else:
-			text = str(n)
-			is_editable = False
 			
-		self.insert(0,text)
-		self.state(["!disabled" if is_editable else "disabled"])
+		self.insert(0,n)
+		self.state(["!disabled" if n==0 else "disabled"])
 
 		sudoku.Cell.__init__(self,n)
 
