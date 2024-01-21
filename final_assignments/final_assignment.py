@@ -3,36 +3,10 @@ import sys
 import csv
 import tkinter as tk
 from tkinter import ttk
+import re
 
 root = tk.Tk()
-
-def is_input_valid(s:str) -> bool:
-	"""入力が数独の入力として有効かを判定する。
-	
-	1から9までの整数または空白が有効。
-
-	Args:
-		s(str): 入力された文字列。
-
-	Returns:
-		bool: 有効なら True, 不正なら False 。
-
-	"""
-	try:
-		if s == "":
-			pass
-
-		else:
-			n = int(s)
-			if not n in range(1,10):
-				return False
-
-	except (TypeError, ValueError):
-		return False
-
-	return True
-
-val_cmd = root.register(is_input_valid)
+val_cmd = root.register(lambda s: bool(re.fullmatch(r'|[1-9]',s)))
 
 STATE_ERROR = "user1"
 STATE_NOT_ERROR = "!user1"
