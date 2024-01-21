@@ -50,7 +50,7 @@ class Grid:
 		9x9の2次元リストを数独の盤面として生成する。数字が書かれていないマスは0として扱う。
 
 		Args:
-			grid (list[list[int]]): cell を要素に持つサイズ9x9のリスト。
+			grid (list[list[int]]): 0以上9以下の数字を要素に持つサイズ9x9のリスト。
 
 		Raises:
 			TypeError: grid が2次元リストでない場合に発生。
